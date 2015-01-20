@@ -1,11 +1,24 @@
 github-email-notifications
 ==========================
 
-Better email notifications from github. Geared towards [Chapel][1] workflow.
+Better email notifications from github with clear, concise, and readable
+messages.
 
 [![Build Status](https://travis-ci.org/thomasvandoren/github-email-notifications.svg?branch=master)](https://travis-ci.org/thomasvandoren/github-email-notifications) [![Coverage Status](https://coveralls.io/repos/thomasvandoren/github-email-notifications/badge.svg?branch=master)](https://coveralls.io/r/thomasvandoren/github-email-notifications?branch=master)
 
-[1]: http://chapel-lang.org/
+Simple python web application for Heroku that accepts github webhooks for
+["push" events][push_events] and generates a clear, concise, and readable email
+message.
+
+It is designed to meet the [Chapel][chapel] team's needs, as the email hook
+provided by github is rather noisy and it looks unlikely to change. The Chapel
+project uses the [feature branch workflow][fb_workflow], and always includes a
+nice summary in the merge commit messages. So, the merge message (actually the
+head commit in the push event) is the only one included in the email.
+
+[chapel]: http://chapel-lang.org/
+[fb_workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow/
+[push_events]: https://developer.github.com/v3/activity/events/types/#pushevent
 
 Heroku Setup
 ------------
