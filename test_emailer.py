@@ -80,6 +80,7 @@ class EmailerTests(unittest.TestCase):
         mock_sec.return_value = 'adsf'
         mock_sig.return_value = True
         body = {
+            'ref': 'the/master',
             'deleted': False,
             'compare': 'http://the-url.it',
             'repository': {'full_name': 'testing/test'},
@@ -94,6 +95,7 @@ class EmailerTests(unittest.TestCase):
         }
         expected_msg_info = {
             'repo': 'testing/test',
+            'branch': 'the/master',
             'revision': 'some-sha1',
             'message': 'A lovely\n\ncommit message.',
             'changed_files': ('R a.out\n'

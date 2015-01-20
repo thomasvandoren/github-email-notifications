@@ -69,6 +69,7 @@ def commit_email():
 
     msg_info = {
         'repo': json_dict['repository']['full_name'],
+        'branch': json_dict['ref'],
         'revision': json_dict['head_commit']['id'],
         'message': json_dict['head_commit']['message'],
         'changed_files': changes,
@@ -98,7 +99,8 @@ def _send_email(msg_info):
     subject_msg = subject_msg[:50]
     subject = '[{0}] {1}'.format(msg_info['repo'], subject_msg)
 
-    body = """Revision: {revision}
+    body = """Branch: {branch}
+Revision: {revision}
 Author: {pusher}
 
 Log Message:
