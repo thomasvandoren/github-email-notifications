@@ -6,8 +6,10 @@ import logging
 import os
 
 app = Flask(__name__)
-heroku = Heroku(app)
-conn = envelopes.SendGridSMTP(login=app.config['SENDGRID_USERNAME'], password=app.config['SENDGRID_PASSWORD'])
+conn = envelopes.SendGridSMTP(
+    login=os.environ.get('SENDGRID_USERNAME'),
+    password=os.environ.get('SENDGRID_PASSWORD')
+)
 
 logging.basicConfig(level=logging.INFO)
 
