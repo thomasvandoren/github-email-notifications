@@ -85,4 +85,13 @@ curl -vs -X POST \
     "pusher": {"name": "thomasvandoren"}}'
 ```
 
+* Install test dependencies and run the unittests.
+
+```bash
+pip install -r test-requirements.txt
+tox
+tox -e flake8
+tox -e coverage
+```
+
 [0]: https://toolbelt.heroku.com/
