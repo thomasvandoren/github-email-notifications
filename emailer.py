@@ -45,10 +45,7 @@ def commit_email():
         return 'nope'
 
     # Verify signature.
-    secret = os.environ.get('CHAPEL_EMAILER_SECRET')
-    if not secret:
-        logging.error('No secret configured in environment.')
-        raise ValueError('No secret configured in environment.')
+    secret = _get_secret()
 
     gh_signature = flask.request.headers.get('x-hub-signature', '')
     if not _valid_signature(gh_signature, flask.request.data, secret):
@@ -68,7 +65,7 @@ def commit_email():
                             json_dict['head_commit']['removed']))
     modified = '\n'.join(map(lambda f: 'M {0}'.format(f),
                              json_dict['head_commit']['modified']))
-    changes = '\n'.join([added, removed, modified])
+    changes = '\n'.join(filter(lambda i: bool(i), [added, removed, modified]))
 
     msg_info = {
         'repo': json_dict['repository']['full_name'],
@@ -78,7 +75,22 @@ def commit_email():
         'pusher': json_dict['pusher']['name'],
         'compare_url': json_dict['compare'],
     }
+    _send_email(msg_info)
 
+    return 'yep'
+
+
+def _get_secret():
+    """Returns secret from environment. Raises ValueError if not set
+    in environment."""
+    if 'CHAPEL_EMAILER_SECRET' not in os.environ:
+        logging.error('No secret configured in environment.')
+        raise ValueError('No secret configured in environment.')
+    return os.environ.get('CHAPEL_EMAILER_SECRET')
+
+
+def _send_email(msg_info):
+    """Create and send commit notification email."""
     sender = os.environ.get('CHAPEL_EMAILER_SENDER')
     recipient = os.environ.get('CHAPEL_EMAILER_RECIPIENT')
 
@@ -109,8 +121,6 @@ Compare: {compare_url}
     smtp = envelopes.connstack.get_current_connection()
     logging.info('Sending email: {0}'.format(msg))
     smtp.send(msg)
-
-    return 'yep'
 
 
 def _valid_signature(gh_signature, body, secret):
