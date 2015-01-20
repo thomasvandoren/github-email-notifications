@@ -34,7 +34,12 @@ def index():
 def commit_email():
     """Receive web hook from github and generate email."""
 
-    # TODO: look at X-GitHub-Event value (thomasvandoren, 2015-01-19)
+    event = flask.request.headers['x-github-event']
+    logging.info('Received "{0}" event from github.'.format(event))
+    if event != 'push':
+        logging.info('Skipping "{0}" event.'.format(event))
+        return 'nope'
+
     # TODO: add secret to webhook and set secret in environment (thomasvandoren, 2015-01-19)
     # TODO: then, look at X-GitHub-Signature and verify body. See:
     #
