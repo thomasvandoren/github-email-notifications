@@ -2,8 +2,10 @@ import envelopes
 import envelopes.connstack
 from flask import Flask
 import flask
+import hmac
 import logging
 import os
+import sha
 
 app = Flask(__name__)
 conn = envelopes.SendGridSMTP(
@@ -34,20 +36,24 @@ def index():
 def commit_email():
     """Receive web hook from github and generate email."""
 
+    # Only look at push events. Ignore the rest.
     event = flask.request.headers['x-github-event']
     logging.info('Received "{0}" event from github.'.format(event))
     if event != 'push':
         logging.info('Skipping "{0}" event.'.format(event))
         return 'nope'
 
-    # TODO: add secret to webhook and set secret in environment (thomasvandoren, 2015-01-19)
-    # TODO: then, look at X-GitHub-Signature and verify body. See:
-    #
-    #         https://developer.github.com/webhooks/#payloads
-    #         https://developer.github.com/v3/repos/hooks/#create-a-hook
-    #         https://github.com/github/github-services/blob/f3bb3dd7/lib/service/http_helper.rb#L77
-    #
-    #       (thomasvandoren, 2015-01-19)
+    # Verify signature.
+    secret = os.environ.get('CHAPEL_EMAILER_SECRET')
+    if not secret:
+        logging.error('No secret configured in environment.')
+        raise ValueError('No secret configured in environment.')
+
+    expected_signature = 'sha1=' + hmac.new(secret, flask.request.body, sha)
+    gh_signature = flask.request.headers.get('x-hub-signature', '')
+    if not hmac.compare_digest(expected_signature, gh_signature):
+        logging.warning('Invalid signature, skipping request.')
+        return 'nope'
 
     json_dict = flask.request.get_json()
     logging.info('json body: {0}'.format(json_dict))
@@ -82,6 +88,7 @@ def commit_email():
 
     body = """Revision: {revision}
 Author: {pusher}
+
 Log Message:
 ------------
 {message}
