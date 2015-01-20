@@ -3,6 +3,7 @@ import envelopes.connstack
 from flask import Flask
 import flask
 import hmac
+import json
 import logging
 import os
 import sha
@@ -129,6 +130,11 @@ Compare: {compare_url}
 
     if reply_to is not None:
         msg.add_header('Reply-To', reply_to)
+
+    # Disable SendGrid click tracking.
+    send_grid_disable_click_tracking = json.dumps(
+        {'filters': {'clicktrack': {'settings': {'enable' : 0}}}})
+    msg.add_header('X-SMTPAPI', send_grid_disable_click_tracking)
 
     smtp = envelopes.connstack.get_current_connection()
     logging.info('Sending email: {0}'.format(msg))
