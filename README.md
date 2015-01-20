@@ -14,6 +14,7 @@ heroku create [<app_name>]
 heroku addons:add papertrail
 heroku config:set CHAPEL_EMAILER_SENDER=<sender_email>
 heroku config:set CHAPEL_EMAILER_RECIPIENT=<recipient_email>
+heroku config:set CHAPEL_EMAILER_SECRET=<the_secret>
 ```
 
 SendGrid Setup
@@ -28,6 +29,12 @@ heroku addons:open sendgrid
 
 * Go to "Global Settings".
 * Check the "Don't convert plain text emails to HTML" box and "Update".
+
+GitHub Setup
+------------
+
+Add webhook to repo to use this emailer. Be sure to set the secret to the value
+of `CHAPEL_EMAILER_SECRET`.
 
 Development
 -----------
@@ -47,6 +54,7 @@ pip install -r requirements.txt
 ```
 CHAPEL_EMAILER_SENDER=<email>
 CHAPEL_EMAILER_RECIPIENT=<email>
+CHAPEL_EMAILER_SECRET=<the_secret>
 SENDGRID_PASSWORD=<sendgrid_password>
 SENDGRID_USERNAME=<sendgrid_user>
 ```
