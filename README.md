@@ -36,7 +36,12 @@ GitHub Setup
 ------------
 
 Add webhook to repo to use this emailer. Be sure to set the secret to the value
-of `CHAPEL_EMAILER_SECRET`.
+of `CHAPEL_EMAILER_SECRET`. The webhook URL is `<heroku_url>/commit-email` and
+it must send "push" events. Show the heroku app url with:
+
+```bash
+heroku domains
+```
 
 Development
 -----------
