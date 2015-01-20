@@ -69,7 +69,7 @@ curl -vs -X POST \
     "compare": "http://compare.me",
     "repository": {"full_name": "bite/me"},
     "head_commit": {
-      "url": "http://commit.url",
+      "id": "mysha1here",
       "message": "This is my message\nwith a break!",
       "added": ["index.html"],
       "removed": ["removed.it"],
