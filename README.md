@@ -74,6 +74,7 @@ foreman start
 ```bash
 curl -vs -X POST \
   'http://localhost:5000/commit-email' \
+  -H 'x-github-event: push'
   -H 'content-type: application/json' \
   -d '{"deleted": false,
     "compare": "http://compare.me",
