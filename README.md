@@ -81,9 +81,10 @@ foreman start
 ```bash
 curl -vs -X POST \
   'http://localhost:5000/commit-email' \
-  -H 'x-github-event: push'
+  -H 'x-github-event: push' \
   -H 'content-type: application/json' \
   -d '{"deleted": false,
+    "ref": "refs/heads/master",
     "compare": "http://compare.me",
     "repository": {"full_name": "bite/me"},
     "head_commit": {
