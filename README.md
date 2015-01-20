@@ -3,6 +3,8 @@ chapel-commit-emailer
 
 Better email notifications from github. Geared towards Chapel workflow.
 
+[![Build Status](https://travis-ci.org/thomasvandoren/chapel-commit-emailer.svg?branch=master)](https://travis-ci.org/thomasvandoren/chapel-commit-emailer) ![Coverage Status](https://coveralls.io/repos/thomasvandoren/chapel-commit-emailer/badge.svg?branch=master)](https://coveralls.io/r/thomasvandoren/chapel-commit-emailer?branch=master)
+
 Heroku Setup
 ------------
 
