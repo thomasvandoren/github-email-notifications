@@ -1,0 +1,5 @@
+language: python
+script:
+  - pip install -rtest-requirements.txt
+  - nosetests --verbose
+  - flake8
