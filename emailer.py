@@ -15,6 +15,7 @@ conn = envelopes.SendGridSMTP(
 
 logging.basicConfig(level=logging.INFO)
 
+
 @app.before_request
 def app_before_request():
     envelopes.connstack.push_connection(conn)

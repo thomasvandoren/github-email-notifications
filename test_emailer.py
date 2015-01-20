@@ -25,7 +25,9 @@ class EmailerTests(unittest.TestCase):
         self.assertTrue(emailer._valid_signature(gh_sig, body, secret))
 
     def test_valid_signature__false(self):
-        self.assertFalse(emailer._valid_signature(str(unicode('adsf')), 'asdf', 'my-secret'))
+        self.assertFalse(
+            emailer._valid_signature(str(unicode('adsf')), 'asdf', 'my-secret')
+        )
 
 
 if __name__ == '__main__':
