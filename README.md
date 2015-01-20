@@ -1,9 +1,11 @@
-chapel-commit-emailer
-=====================
+github-email-notifications
+==========================
 
 Better email notifications from github. Geared towards Chapel workflow.
 
-[![Build Status](https://travis-ci.org/thomasvandoren/chapel-commit-emailer.svg?branch=master)](https://travis-ci.org/thomasvandoren/chapel-commit-emailer) [![Coverage Status](https://coveralls.io/repos/thomasvandoren/chapel-commit-emailer/badge.svg?branch=master)](https://coveralls.io/r/thomasvandoren/chapel-commit-emailer?branch=master)
+[![Build Status](https://travis-ci.org/thomasvandoren/github-email-notifications.svg?branch=master)](https://travis-ci.org/thomasvandoren/github-email-notifications) [![Coverage Status](https://coveralls.io/repos/thomasvandoren/github-email-notifications/badge.svg?branch=master)](https://coveralls.io/r/thomasvandoren/github-email-notifications?branch=master)
+
+
 
 Heroku Setup
 ------------
@@ -52,7 +54,7 @@ dependencies, create a `.env` file, and use `foreman start` to run the app.
 * Install python dependencies (assuming virtualenvwrapper is available):
 
 ```bash
-mkvirtualenv chapel-commit-emailer
+mkvirtualenv github-email-notifications
 pip install -r requirements.txt
 ```
 
