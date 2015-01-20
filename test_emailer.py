@@ -9,6 +9,9 @@ import uuid
 import emailer
 
 
+@mock.patch('logging.error', new=mock.Mock())
+@mock.patch('logging.warn', new=mock.Mock())
+@mock.patch('logging.info', new=mock.Mock())
 class EmailerTests(unittest.TestCase):
 
     def setUp(self):

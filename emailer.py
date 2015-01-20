@@ -49,7 +49,7 @@ def commit_email():
 
     gh_signature = flask.request.headers.get('x-hub-signature', '')
     if not _valid_signature(gh_signature, flask.request.data, secret):
-        logging.warning('Invalid signature, skipping request.')
+        logging.warn('Invalid signature, skipping request.')
         return 'nope'
 
     json_dict = flask.request.get_json()
