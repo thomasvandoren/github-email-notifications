@@ -24,6 +24,22 @@ class EmailerTests(unittest.TestCase):
             'x-hub-signature': 'bogus-sig',
             'content-type': 'application/json',
         }
+        self.msg_info = {
+            'repo': 'TESTING/test',
+            'branch': 'the/TEST/master',
+            'revision': 'some-TEST-sha1',
+            'message': 'A lovely TEST\n\nTEST commit message.',
+            'changed_files': ('R a.out\n'
+                              'R gen\n'
+                              'M README.md\n'
+                              'M README\n'
+                              'M LICENSE'),
+            'pusher': 'TESTING-the-tester',
+            'compare_url': 'http://TEST.fake',
+        }
+        self.sender = 'noreply@fake.fake'
+        self.recipient = 'recip@fake.fake'
+        self.reply_to = 'reply-to-me@fake.fake'
 
     def test_index_redirects(self):
         """Verify index page redirects to chapel-lang.org."""
@@ -114,6 +130,55 @@ class EmailerTests(unittest.TestCase):
                           data=json.dumps(body))
         self.assertEqual(200, r.status_code)
         mock_send.assert_called_once_with(expected_msg_info)
+
+    def test_send_email__no_sender(self):
+        """Verify ValueError when sender is not configured."""
+        if 'GITHUB_COMMIT_EMAILER_SENDER' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_SENDER']
+        self.assertRaises(ValueError, emailer._send_email, {})
+
+    def test_send_email__no_recipient(self):
+        """Verify ValueError when recipient is not configured."""
+        if 'GITHUB_COMMIT_EMAILER_RECIPIENT' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT']
+        self.assertRaises(ValueError, emailer._send_email, {})
+
+    def test_send_email__missing_both(self):
+        """Verify ValueError when recipient and sender are not configured."""
+        if 'GITHUB_COMMIT_EMAILER_SENDER' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_SENDER']
+        if 'GITHUB_COMMIT_EMAILER_RECIPIENT' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT']
+        self.assertRaises(ValueError, emailer._send_email, {})
+
+    @mock.patch('envelopes.connstack.get_current_connection')
+    def test_send_email__no_reply_to(self, mock_send):
+        """Verify email is sent as expected when reply-to is not configured."""
+        os.environ['GITHUB_COMMIT_EMAILER_SENDER'] = self.sender
+        os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT'] = self.recipient
+        if 'GITHUB_COMMIT_EMAILER_REPLY_TO' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_REPLY_TO']
+        emailer._send_email(self.msg_info)
+
+        mock_send.return_value.send.assert_called_once_with(mock.ANY)
+        actual_msg = mock_send.return_value.send.call_args[0][0]
+        self.assertEqual([self.recipient], actual_msg.to_addr)
+        self.assertEqual(self.sender, actual_msg.from_addr)
+        self.assertEqual(None, actual_msg.headers.get('Reply-To'))
+
+    @mock.patch('envelopes.connstack.get_current_connection')
+    def test_send_email__reply_to(self, mock_send):
+        """Verify email is sent as expected when reply-to is configured."""
+        os.environ['GITHUB_COMMIT_EMAILER_SENDER'] = self.sender
+        os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT'] = self.recipient
+        os.environ['GITHUB_COMMIT_EMAILER_REPLY_TO'] = self.reply_to
+        emailer._send_email(self.msg_info)
+
+        mock_send.return_value.send.assert_called_once_with(mock.ANY)
+        actual_msg = mock_send.return_value.send.call_args[0][0]
+        self.assertEqual([self.recipient], actual_msg.to_addr)
+        self.assertEqual(self.sender, actual_msg.from_addr)
+        self.assertEqual(self.reply_to, actual_msg.headers.get('Reply-To'))
 
     def test_valid_signature__true__str(self):
         """Verify _valid_signature returns true when signature matches."""

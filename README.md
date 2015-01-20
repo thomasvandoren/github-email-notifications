@@ -21,6 +21,14 @@ heroku config:set GITHUB_COMMIT_EMAILER_RECIPIENT=<recipient_email>
 heroku config:set GITHUB_COMMIT_EMAILER_SECRET=<the_secret>
 ```
 
+Optionally, a reply-to address can be configured with the following config. If
+not set, no reply-to header is set so the sender address will be used as reply
+address.
+
+```bash
+heroku config:set GITHUB_COMMIT_EMAILER_REPLY_TO=<reply_to_email>
+```
+
 SendGrid Setup
 --------------
 

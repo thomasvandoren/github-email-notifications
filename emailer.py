@@ -95,6 +95,12 @@ def _send_email(msg_info):
     sender = os.environ.get('GITHUB_COMMIT_EMAILER_SENDER')
     recipient = os.environ.get('GITHUB_COMMIT_EMAILER_RECIPIENT')
 
+    if sender is None or recipient is None:
+        logging.error('sender and recipient config vars must be set.')
+        raise ValueError('sender and recipient config vars must be set.')
+
+    reply_to = os.environ.get('GITHUB_COMMIT_EMAILER_REPLY_TO', None)
+
     subject_msg = msg_info['message'].splitlines()[0]
     subject_msg = subject_msg[:50]
     subject = '[{0}] {1}'.format(msg_info['repo'], subject_msg)
@@ -120,6 +126,10 @@ Compare: {compare_url}
         subject=subject,
         text_body=body
     )
+
+    if reply_to is not None:
+        msg.add_header('Reply-To', reply_to)
+
     smtp = envelopes.connstack.get_current_connection()
     logging.info('Sending email: {0}'.format(msg))
     smtp.send(msg)
