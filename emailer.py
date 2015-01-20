@@ -49,7 +49,8 @@ def commit_email():
         logging.error('No secret configured in environment.')
         raise ValueError('No secret configured in environment.')
 
-    expected_signature = 'sha1=' + hmac.new(secret, flask.request.body, sha)
+    expected_hmac = hmac.new(secret, flask.request.data, sha)
+    expected_signature = 'sha1=' + expected_hmac.hexdigest()
     gh_signature = flask.request.headers.get('x-hub-signature', '')
     if not hmac.compare_digest(expected_signature, gh_signature):
         logging.warning('Invalid signature, skipping request.')
