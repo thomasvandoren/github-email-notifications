@@ -115,7 +115,7 @@ class EmailerTests(unittest.TestCase):
         expected_msg_info = {
             'repo': 'testing/test',
             'branch': 'the/master',
-            'revision': 'some-sha1',
+            'revision': 'some-sha1'[:7],
             'message': 'A lovely\n\ncommit message.',
             'changed_files': ('R a.out\n'
                               'R gen\n'

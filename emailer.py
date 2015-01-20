@@ -70,7 +70,7 @@ def commit_email():
     msg_info = {
         'repo': json_dict['repository']['full_name'],
         'branch': json_dict['ref'],
-        'revision': json_dict['head_commit']['id'],
+        'revision': json_dict['head_commit']['id'][:7],
         'message': json_dict['head_commit']['message'],
         'changed_files': changes,
         'pusher': json_dict['pusher']['name'],
