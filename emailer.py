@@ -84,16 +84,16 @@ def commit_email():
 def _get_secret():
     """Returns secret from environment. Raises ValueError if not set
     in environment."""
-    if 'CHAPEL_EMAILER_SECRET' not in os.environ:
+    if 'GITHUB_COMMIT_EMAILER_SECRET' not in os.environ:
         logging.error('No secret configured in environment.')
         raise ValueError('No secret configured in environment.')
-    return os.environ.get('CHAPEL_EMAILER_SECRET')
+    return os.environ.get('GITHUB_COMMIT_EMAILER_SECRET')
 
 
 def _send_email(msg_info):
     """Create and send commit notification email."""
-    sender = os.environ.get('CHAPEL_EMAILER_SENDER')
-    recipient = os.environ.get('CHAPEL_EMAILER_RECIPIENT')
+    sender = os.environ.get('GITHUB_COMMIT_EMAILER_SENDER')
+    recipient = os.environ.get('GITHUB_COMMIT_EMAILER_RECIPIENT')
 
     subject_msg = msg_info['message'].splitlines()[0]
     subject_msg = subject_msg[:50]

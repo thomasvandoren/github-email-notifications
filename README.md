@@ -1,11 +1,11 @@
 github-email-notifications
 ==========================
 
-Better email notifications from github. Geared towards Chapel workflow.
+Better email notifications from github. Geared towards [Chapel][1] workflow.
 
 [![Build Status](https://travis-ci.org/thomasvandoren/github-email-notifications.svg?branch=master)](https://travis-ci.org/thomasvandoren/github-email-notifications) [![Coverage Status](https://coveralls.io/repos/thomasvandoren/github-email-notifications/badge.svg?branch=master)](https://coveralls.io/r/thomasvandoren/github-email-notifications?branch=master)
 
-
+[1]: http://chapel-lang.org/
 
 Heroku Setup
 ------------
@@ -16,9 +16,9 @@ variables.
 ```bash
 heroku create [<app_name>]
 heroku addons:add papertrail
-heroku config:set CHAPEL_EMAILER_SENDER=<sender_email>
-heroku config:set CHAPEL_EMAILER_RECIPIENT=<recipient_email>
-heroku config:set CHAPEL_EMAILER_SECRET=<the_secret>
+heroku config:set GITHUB_COMMIT_EMAILER_SENDER=<sender_email>
+heroku config:set GITHUB_COMMIT_EMAILER_RECIPIENT=<recipient_email>
+heroku config:set GITHUB_COMMIT_EMAILER_SECRET=<the_secret>
 ```
 
 SendGrid Setup
@@ -38,8 +38,9 @@ GitHub Setup
 ------------
 
 Add webhook to repo to use this emailer. Be sure to set the secret to the value
-of `CHAPEL_EMAILER_SECRET`. The webhook URL is `<heroku_url>/commit-email` and
-it must send "push" events. Show the heroku app url with:
+of `GITHUB_COMMIT_EMAILER_SECRET`. The webhook URL is
+`<heroku_url>/commit-email` and it must send "push" events. Show the heroku app
+url with:
 
 ```bash
 heroku domains
@@ -61,9 +62,9 @@ pip install -r requirements.txt
 * Create `.env` file with chapel config values:
 
 ```
-CHAPEL_EMAILER_SENDER=<email>
-CHAPEL_EMAILER_RECIPIENT=<email>
-CHAPEL_EMAILER_SECRET=<the_secret>
+GITHUB_COMMIT_EMAILER_SENDER=<email>
+GITHUB_COMMIT_EMAILER_RECIPIENT=<email>
+GITHUB_COMMIT_EMAILER_SECRET=<the_secret>
 SENDGRID_PASSWORD=<sendgrid_password>
 SENDGRID_USERNAME=<sendgrid_user>
 ```

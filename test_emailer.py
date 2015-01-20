@@ -49,8 +49,8 @@ class EmailerTests(unittest.TestCase):
 
     def test_no_secret_in_env(self):
         """Verify raises error when secret is not in environment."""
-        if 'CHAPEL_EMAILER_SECRET' in os.environ:
-            del os.environ['CHAPEL_EMAILER_SECRET']
+        if 'GITHUB_COMMIT_EMAILER_SECRET' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_SECRET']
         self.assertRaises(
             ValueError,
             self.app.post,
