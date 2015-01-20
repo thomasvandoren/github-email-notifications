@@ -8,17 +8,17 @@ import os
 import sha
 
 app = Flask(__name__)
-conn = envelopes.SendGridSMTP(
-    login=os.environ.get('SENDGRID_USERNAME'),
-    password=os.environ.get('SENDGRID_PASSWORD')
-)
 
 logging.basicConfig(level=logging.INFO)
 
 
 @app.before_request
 def app_before_request():
-    envelopes.connstack.push_connection(conn)
+    envelopes.connstack.push_connection(
+        envelopes.SendGridSMTP(
+            login=os.environ.get('SENDGRID_USERNAME'),
+            password=os.environ.get('SENDGRID_PASSWORD'))
+    )
 
 
 @app.after_request
