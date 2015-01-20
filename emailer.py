@@ -49,10 +49,8 @@ def commit_email():
         logging.error('No secret configured in environment.')
         raise ValueError('No secret configured in environment.')
 
-    expected_hmac = hmac.new(secret, flask.request.data, sha)
-    expected_signature = 'sha1=' + expected_hmac.hexdigest()
     gh_signature = flask.request.headers.get('x-hub-signature', '')
-    if not hmac.compare_digest(expected_signature, gh_signature):
+    if not _valid_signature(gh_signature, flask.request.data, secret):
         logging.warning('Invalid signature, skipping request.')
         return 'nope'
 
@@ -112,3 +110,12 @@ Compare: {compare_url}
     smtp.send(msg)
 
     return 'yep'
+
+
+def _valid_signature(gh_signature, body, secret):
+    """Returns True if GitHub signature is valid. False, otherwise."""
+    if isinstance(gh_signature, unicode):
+        gh_signature = str(gh_signature)
+    expected_hmac = hmac.new(secret, body, sha)
+    expected_signature = 'sha1=' + expected_hmac.hexdigest()
+    return hmac.compare_digest(expected_signature, gh_signature)
