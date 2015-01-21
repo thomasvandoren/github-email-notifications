@@ -4,7 +4,7 @@ github-email-notifications
 Better email notifications from github with clear, concise, and readable
 messages.
 
-[![Build Status](https://travis-ci.org/thomasvandoren/github-email-notifications.svg?branch=master)](https://travis-ci.org/thomasvandoren/github-email-notifications) [![Coverage Status](https://coveralls.io/repos/thomasvandoren/github-email-notifications/badge.svg?branch=master)](https://coveralls.io/r/thomasvandoren/github-email-notifications?branch=master)
+[![Build Status](https://travis-ci.org/chapel-lang/github-email-notifications.svg?branch=master)](https://travis-ci.org/chapel-lang/github-email-notifications) [![Coverage Status](https://coveralls.io/repos/chapel-lang/github-email-notifications/badge.svg?branch=master)](https://coveralls.io/r/chapel-lang/github-email-notifications?branch=master)
 
 Simple python web application for Heroku that accepts github webhooks for
 ["push" events][push_events] and generates a clear, concise, and readable email
