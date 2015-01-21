@@ -43,6 +43,47 @@ class EmailerTests(unittest.TestCase):
         self.send_grid_header = json.dumps(
             {'filters': {'clicktrack': {'settings': {'enable': 0}}}})
 
+    @mock.patch('flask.got_request_exception.connect')
+    @mock.patch('rollbar.init')
+    def test_rollbar_init__testing(self, mock_init, mock_exc):
+        """Verify rollbar is not initalized in unittest environment."""
+        self.app.get('/')
+        self.assertEqual(0, mock_init.call_count)
+        self.assertEqual(0, mock_exc.call_count)
+
+    @mock.patch('flask.got_request_exception.connect')
+    @mock.patch('rollbar.init')
+    def test_rollbar_init(self, mock_init, mock_exc):
+        """Verify rollbar init is called."""
+        os.environ['ROLLBAR_ACCESS_TOKEN'] = 'fakefakefake'
+        emailer.app.config['TESTING'] = False
+        emailer.app.before_first_request_funcs[0]()
+
+        mock_init.assert_called_once_with(
+            'fakefakefake',
+            'github-email-notifications',
+            root=os.path.abspath(os.path.dirname(__file__)),
+            allow_logging_basic_config=False
+        )
+        mock_exc.assert_called_once_with(mock.ANY, emailer.app)
+
+    @mock.patch('flask.got_request_exception.connect')
+    @mock.patch('rollbar.init')
+    def test_rollbar_init__env_name(self, mock_init, mock_exc):
+        """Verify rollbar init is called with rollbar env name from env var."""
+        os.environ['ROLLBAR_ACCESS_TOKEN'] = 'fakefakefake'
+        os.environ['GITHUB_COMMIT_EMAILER_ROLLBAR_ENV'] = 'my-TEST-env'
+        emailer.app.config['TESTING'] = False
+        emailer.app.before_first_request_funcs[0]()
+
+        mock_init.assert_called_once_with(
+            'fakefakefake',
+            'my-TEST-env',
+            root=os.path.abspath(os.path.dirname(__file__)),
+            allow_logging_basic_config=False
+        )
+        mock_exc.assert_called_once_with(mock.ANY, emailer.app)
+
     def test_index_redirects(self):
         """Verify index page redirects to chapel-lang.org."""
         r = self.app.get('/')
@@ -89,7 +130,6 @@ class EmailerTests(unittest.TestCase):
         r = self.app.post('/commit-email',
                           headers=self.headers,
                           data=json.dumps({'deleted': True}))
-        print(r.data)
         self.assertEqual(200, r.status_code)
         self.assertEqual(0, mock_send.call_count)
 

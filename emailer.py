@@ -6,11 +6,34 @@ import hmac
 import json
 import logging
 import os
+import os.path
+import rollbar
+import rollbar.contrib.flask
 import sha
 
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
+
+
+@app.before_first_request
+def init_rollbar():
+    """Configure rollbar to capture exceptions."""
+    if app.config.get('TESTING', False):
+        logging.warn(
+            'Skipping rollbar init because TESTING flag is set on flask app.')
+        return
+
+    rollbar.init(
+        # throw KeyError if env var is not set.
+        os.environ['ROLLBAR_ACCESS_TOKEN'],
+        os.environ.get('GITHUB_COMMIT_EMAILER_ROLLBAR_ENV',
+                       'github-email-notifications'),
+        root=os.path.dirname(os.path.realpath(__file__)),
+        allow_logging_basic_config=False
+    )
+    flask.got_request_exception.connect(
+        rollbar.contrib.flask.report_exception, app)
 
 
 @app.before_request
