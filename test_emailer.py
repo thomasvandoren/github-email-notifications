@@ -169,6 +169,7 @@ class EmailerTests(unittest.TestCase):
         self.assertEqual(None, actual_msg.headers.get('Reply-To'))
         self.assertEqual(
             self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
+        self.assertEqual('[TESTING/test] TEST commit message.', actual_msg._subject)
 
     @mock.patch('envelopes.connstack.get_current_connection')
     def test_send_email__reply_to(self, mock_send):
@@ -185,6 +186,29 @@ class EmailerTests(unittest.TestCase):
         self.assertEqual(self.reply_to, actual_msg.headers.get('Reply-To'))
         self.assertEqual(
             self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
+        self.assertEqual('[TESTING/test] TEST commit message.', actual_msg._subject)
+
+    def test_get_subject(self):
+        """Verify get_subject returns first line of commit message and repo name."""
+        expected = '[TEST/it] this is a message'
+        actual = emailer._get_subject('TEST/it', 'this is a message')
+        self.assertEqual(expected, actual)
+
+    def test_get_subject__msg_greater_than_50(self):
+        """Verify subject when commit message line has more than 50 chars."""
+        repo = 'TEST/realllllllllllllllyyyyyyyyyyy-loooooooooooooong'
+        msg = 'this is really long {0}'.format('.' * 100)
+        assert len(msg) > 50
+        expected = '[{0}] {1}'.format(repo, msg[:50])
+        actual = emailer._get_subject(repo, msg)
+        self.assertEqual(expected, actual)
+
+    def test_get_subject__third_line(self):
+        """Verify subject when commit message has three lines."""
+        msg = 'merge pull request #blah\n\nmy real message\n\nwith lots of info'
+        expected = '[TEST/it] my real message'
+        actual = emailer._get_subject('TEST/it', msg)
+        self.assertEqual(expected, actual)
 
     def test_valid_signature__true__str(self):
         """Verify _valid_signature returns true when signature matches."""

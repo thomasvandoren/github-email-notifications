@@ -101,10 +101,7 @@ def _send_email(msg_info):
         raise ValueError('sender and recipient config vars must be set.')
 
     reply_to = os.environ.get('GITHUB_COMMIT_EMAILER_REPLY_TO', None)
-
-    subject_msg = msg_info['message'].splitlines()[0]
-    subject_msg = subject_msg[:50]
-    subject = '[{0}] {1}'.format(msg_info['repo'], subject_msg)
+    subject = _get_subject(msg_info['repo'], msg_info['message'])
 
     body = """Branch: {branch}
 Revision: {revision}
@@ -139,6 +136,23 @@ Compare: {compare_url}
     smtp = envelopes.connstack.get_current_connection()
     logging.info('Sending email: {0}'.format(msg))
     smtp.send(msg)
+
+
+def _get_subject(repo, message):
+    """Returns subject line from repo name and commit message."""
+    message_lines = message.splitlines()
+
+    # For github merge commit messages, the first line is "Merged pull request
+    # #blah ...", followed by two line breaks. The third line is where the
+    # author's commit message starts. So, if a third line is available, use
+    # it. Otherwise, just use the first line.
+    if len(message_lines) >= 3:
+        subject_msg = message_lines[2]
+    else:
+        subject_msg = message_lines[0]
+    subject_msg = subject_msg[:50]
+    subject = '[{0}] {1}'.format(repo, subject_msg)
+    return subject
 
 
 def _valid_signature(gh_signature, body, secret):
