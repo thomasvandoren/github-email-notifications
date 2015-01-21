@@ -41,7 +41,7 @@ class EmailerTests(unittest.TestCase):
         self.recipient = 'recip@fake.fake'
         self.reply_to = 'reply-to-me@fake.fake'
         self.send_grid_header = json.dumps(
-            {'filters': {'clicktrack': {'settings': {'enable' : 0}}}})
+            {'filters': {'clicktrack': {'settings': {'enable': 0}}}})
 
     def test_index_redirects(self):
         """Verify index page redirects to chapel-lang.org."""
@@ -167,7 +167,8 @@ class EmailerTests(unittest.TestCase):
         self.assertEqual([self.recipient], actual_msg.to_addr)
         self.assertEqual(self.sender, actual_msg.from_addr)
         self.assertEqual(None, actual_msg.headers.get('Reply-To'))
-        self.assertEqual(self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
+        self.assertEqual(
+            self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
 
     @mock.patch('envelopes.connstack.get_current_connection')
     def test_send_email__reply_to(self, mock_send):
@@ -182,7 +183,8 @@ class EmailerTests(unittest.TestCase):
         self.assertEqual([self.recipient], actual_msg.to_addr)
         self.assertEqual(self.sender, actual_msg.from_addr)
         self.assertEqual(self.reply_to, actual_msg.headers.get('Reply-To'))
-        self.assertEqual(self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
+        self.assertEqual(
+            self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
 
     def test_valid_signature__true__str(self):
         """Verify _valid_signature returns true when signature matches."""

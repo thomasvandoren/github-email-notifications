@@ -133,7 +133,7 @@ Compare: {compare_url}
 
     # Disable SendGrid click tracking.
     send_grid_disable_click_tracking = json.dumps(
-        {'filters': {'clicktrack': {'settings': {'enable' : 0}}}})
+        {'filters': {'clicktrack': {'settings': {'enable': 0}}}})
     msg.add_header('X-SMTPAPI', send_grid_disable_click_tracking)
 
     smtp = envelopes.connstack.get_current_connection()
