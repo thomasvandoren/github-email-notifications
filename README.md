@@ -55,6 +55,23 @@ heroku addons:open sendgrid
 * Go to "Global Settings".
 * Check the "Don't convert plain text emails to HTML" box and "Update".
 
+Rollbar Setup
+-------------
+
+Rollbar provides error tracking, in case anything unexpected happens. Enable
+the addon and optionally set the environment name.
+
+```bash
+heroku addons:add rollbar
+```
+
+Optionally, set the environment name for rollbar. This is probably only
+necessary if you have multiple environment configured to use rollbar.
+
+```bash
+heroku config:set GITHUB_COMMIT_EMAILER_ROLLBAR_ENV=<env_name>
+```
+
 GitHub Setup
 ------------
 
@@ -86,6 +103,7 @@ pip install -r requirements.txt
 GITHUB_COMMIT_EMAILER_SENDER=<email>
 GITHUB_COMMIT_EMAILER_RECIPIENT=<email>
 GITHUB_COMMIT_EMAILER_SECRET=<the_secret>
+ROLLBAR_ACCESS_TOKEN=<rollbar_token>
 SENDGRID_PASSWORD=<sendgrid_password>
 SENDGRID_USERNAME=<sendgrid_user>
 ```
