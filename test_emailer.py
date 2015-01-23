@@ -198,42 +198,69 @@ class EmailerTests(unittest.TestCase):
         self.assertRaises(ValueError,
                           emailer._send_email, {'pusher_email': 'x'})
 
+    def prep_env(self):
+        """Prepare os.environ for _send_email() tests."""
+        os.environ['GITHUB_COMMIT_EMAILER_SENDER'] = self.sender
+        os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT'] = self.recipient
+
+    def check_msg(self, actual_msg):
+        """Verify recipient and sender on sent message."""
+        self.assertEqual([self.recipient], actual_msg.to_addr)
+        self.assertEqual(self.sender, actual_msg.from_addr)
+        self.assertEqual(
+            self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
+        self.assertEqual(
+            '[TESTING/test] TEST commit message.', actual_msg._subject)
+
     @mock.patch('envelopes.connstack.get_current_connection')
     def test_send_email__no_reply_to(self, mock_send):
         """Verify email is sent as expected when reply-to is not configured."""
-        os.environ['GITHUB_COMMIT_EMAILER_SENDER'] = self.sender
-        os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT'] = self.recipient
+        self.prep_env()
         if 'GITHUB_COMMIT_EMAILER_REPLY_TO' in os.environ:
             del os.environ['GITHUB_COMMIT_EMAILER_REPLY_TO']
         emailer._send_email(self.msg_info)
 
         mock_send.return_value.send.assert_called_once_with(mock.ANY)
         actual_msg = mock_send.return_value.send.call_args[0][0]
-        self.assertEqual([self.recipient], actual_msg.to_addr)
-        self.assertEqual(self.sender, actual_msg.from_addr)
+        self.check_msg(actual_msg)
         self.assertEqual(None, actual_msg.headers.get('Reply-To'))
-        self.assertEqual(
-            self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
-        self.assertEqual(
-            '[TESTING/test] TEST commit message.', actual_msg._subject)
 
     @mock.patch('envelopes.connstack.get_current_connection')
     def test_send_email__reply_to(self, mock_send):
         """Verify email is sent as expected when reply-to is configured."""
-        os.environ['GITHUB_COMMIT_EMAILER_SENDER'] = self.sender
-        os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT'] = self.recipient
+        self.prep_env()
         os.environ['GITHUB_COMMIT_EMAILER_REPLY_TO'] = self.reply_to
         emailer._send_email(self.msg_info)
 
         mock_send.return_value.send.assert_called_once_with(mock.ANY)
         actual_msg = mock_send.return_value.send.call_args[0][0]
-        self.assertEqual([self.recipient], actual_msg.to_addr)
-        self.assertEqual(self.sender, actual_msg.from_addr)
+        self.check_msg(actual_msg)
         self.assertEqual(self.reply_to, actual_msg.headers.get('Reply-To'))
-        self.assertEqual(
-            self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
-        self.assertEqual(
-            '[TESTING/test] TEST commit message.', actual_msg._subject)
+
+    @mock.patch('envelopes.connstack.get_current_connection')
+    def test_send_email__approved(self, mock_send):
+        """Verify approved header is added when config is set."""
+        self.prep_env()
+        os.environ['GITHUB_COMMIT_EMAILER_APPROVED_HEADER'] = 'my-super-secret'
+        emailer._send_email(self.msg_info)
+
+        mock_send.return_value.send.assert_called_once_with(mock.ANY)
+        actual_msg = mock_send.return_value.send.call_args[0][0]
+        self.check_msg(actual_msg)
+        self.assertEqual('my-super-secret', actual_msg.headers.get('Approved'))
+
+    @mock.patch('envelopes.connstack.get_current_connection')
+    def test_send_email__no_approved(self, mock_send):
+        """Verify approved header is not added when config is not set."""
+        self.prep_env()
+        if 'GITHUB_COMMIT_EMAILER_APPROVED_HEADER' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_APPROVED_HEADER']
+        emailer._send_email(self.msg_info)
+
+        mock_send.return_value.send.assert_called_once_with(mock.ANY)
+        actual_msg = mock_send.return_value.send.call_args[0][0]
+        self.check_msg(actual_msg)
+        self.assertEqual(None, actual_msg.headers.get('Approved'))
 
     def test_get_sender__from_author(self):
         """Verify sent from author when appropriate config var set."""

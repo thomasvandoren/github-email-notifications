@@ -48,6 +48,13 @@ address.
 heroku config:set GITHUB_COMMIT_EMAILER_REPLY_TO=<reply_to_email>
 ```
 
+Optionally, an "Approved" header value can be configured. The Approved header
+automatically approves the messages for a read-only or moderated mailing list.
+
+```bash
+heroku config:set GITHUB_COMMIT_EMAILER_APPROVED_HEADER=<approved_header>
+```
+
 SendGrid Setup
 --------------
 

@@ -128,6 +128,7 @@ def _send_email(msg_info):
         raise ValueError('sender and recipient config vars must be set.')
 
     reply_to = os.environ.get('GITHUB_COMMIT_EMAILER_REPLY_TO', None)
+    approved = os.environ.get('GITHUB_COMMIT_EMAILER_APPROVED_HEADER', None)
     subject = _get_subject(msg_info['repo'], msg_info['message'])
 
     body = """Branch: {branch}
@@ -154,6 +155,8 @@ Compare: {compare_url}
 
     if reply_to is not None:
         msg.add_header('Reply-To', reply_to)
+    if approved is not None:
+        msg.add_header('Approved', approved)
 
     # Disable SendGrid click tracking.
     send_grid_disable_click_tracking = json.dumps(
