@@ -136,14 +136,16 @@ curl -vs -X POST \
   -d '{"deleted": false,
     "ref": "refs/heads/master",
     "compare": "http://compare.me",
-    "repository": {"full_name": "bite/me"},
+    "repository": {"full_name": "test/it"},
     "head_commit": {
       "id": "mysha1here",
       "message": "This is my message\nwith a break!",
       "added": ["index.html"],
       "removed": ["removed.it"],
       "modified": ["stuff", "was", "done"]},
-    "pusher": {"name": "thomasvandoren"}}'
+    "pusher": {
+      "name": "thomasvandoren",
+      "email": "testing@github-email-notification.info"}}'
 ```
 
 * Install test dependencies and run the unittests.
