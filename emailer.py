@@ -91,6 +91,9 @@ def commit_email():
                              json_dict['head_commit']['modified']))
     changes = '\n'.join(filter(lambda i: bool(i), [added, removed, modified]))
 
+    pusher_email = '{0} <{1}>'.format(json_dict['pusher']['name'],
+                                      json_dict['pusher']['email'])
+
     msg_info = {
         'repo': json_dict['repository']['full_name'],
         'branch': json_dict['ref'],
@@ -98,6 +101,7 @@ def commit_email():
         'message': json_dict['head_commit']['message'],
         'changed_files': changes,
         'pusher': json_dict['pusher']['name'],
+        'pusher_email': pusher_email,
         'compare_url': json_dict['compare'],
     }
     _send_email(msg_info)
@@ -116,7 +120,7 @@ def _get_secret():
 
 def _send_email(msg_info):
     """Create and send commit notification email."""
-    sender = os.environ.get('GITHUB_COMMIT_EMAILER_SENDER')
+    sender = _get_sender(msg_info['pusher_email'])
     recipient = os.environ.get('GITHUB_COMMIT_EMAILER_RECIPIENT')
 
     if sender is None or recipient is None:
@@ -159,6 +163,16 @@ Compare: {compare_url}
     smtp = envelopes.connstack.get_current_connection()
     logging.info('Sending email: {0}'.format(msg))
     smtp.send(msg)
+
+
+def _get_sender(pusher_email):
+    """Returns "From" address based on env config and default from."""
+    use_author = 'GITHUB_COMMIT_EMAILER_SEND_FROM_AUTHOR' in os.environ
+    if use_author:
+        sender = pusher_email
+    else:
+        sender = os.environ.get('GITHUB_COMMIT_EMAILER_SENDER')
+    return sender
 
 
 def _get_subject(repo, message):
