@@ -35,6 +35,7 @@ class EmailerTests(unittest.TestCase):
                               'M README\n'
                               'M LICENSE'),
             'pusher': 'TESTING-the-tester',
+            'pusher_email': 'TESTING-the-tester <TEST@example.com>',
             'compare_url': 'http://TEST.fake',
         }
         self.sender = 'noreply@fake.fake'
@@ -145,7 +146,7 @@ class EmailerTests(unittest.TestCase):
             'deleted': False,
             'compare': 'http://the-url.it',
             'repository': {'full_name': 'testing/test'},
-            'pusher': {'name': 'the-tester'},
+            'pusher': {'name': 'the-tester', 'email': 'the@example.com'},
             'head_commit': {
                 'id': 'some-sha1',
                 'message': 'A lovely\n\ncommit message.',
@@ -165,6 +166,7 @@ class EmailerTests(unittest.TestCase):
                               'M README\n'
                               'M LICENSE'),
             'pusher': 'the-tester',
+            'pusher_email': 'the-tester <the@example.com>',
             'compare_url': 'http://the-url.it',
         }
         r = self.app.post('/commit-email',
@@ -177,13 +179,15 @@ class EmailerTests(unittest.TestCase):
         """Verify ValueError when sender is not configured."""
         if 'GITHUB_COMMIT_EMAILER_SENDER' in os.environ:
             del os.environ['GITHUB_COMMIT_EMAILER_SENDER']
-        self.assertRaises(ValueError, emailer._send_email, {})
+        self.assertRaises(ValueError,
+                          emailer._send_email, {'pusher_email': 'x'})
 
     def test_send_email__no_recipient(self):
         """Verify ValueError when recipient is not configured."""
         if 'GITHUB_COMMIT_EMAILER_RECIPIENT' in os.environ:
             del os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT']
-        self.assertRaises(ValueError, emailer._send_email, {})
+        self.assertRaises(ValueError,
+                          emailer._send_email, {'pusher_email': 'x'})
 
     def test_send_email__missing_both(self):
         """Verify ValueError when recipient and sender are not configured."""
@@ -191,7 +195,8 @@ class EmailerTests(unittest.TestCase):
             del os.environ['GITHUB_COMMIT_EMAILER_SENDER']
         if 'GITHUB_COMMIT_EMAILER_RECIPIENT' in os.environ:
             del os.environ['GITHUB_COMMIT_EMAILER_RECIPIENT']
-        self.assertRaises(ValueError, emailer._send_email, {})
+        self.assertRaises(ValueError,
+                          emailer._send_email, {'pusher_email': 'x'})
 
     @mock.patch('envelopes.connstack.get_current_connection')
     def test_send_email__no_reply_to(self, mock_send):
@@ -229,6 +234,22 @@ class EmailerTests(unittest.TestCase):
             self.send_grid_header, actual_msg.headers.get('X-SMTPAPI'))
         self.assertEqual(
             '[TESTING/test] TEST commit message.', actual_msg._subject)
+
+    def test_get_sender__from_author(self):
+        """Verify sent from author when appropriate config var set."""
+        os.environ['GITHUB_COMMIT_EMAILER_SEND_FROM_AUTHOR'] = 'whatevs'
+        actual = emailer._get_sender('my-address')
+        self.assertEqual('my-address', actual)
+
+    def test_get_sender__from_noreply(self):
+        """Verify sent from config'd sender when appropriate config var
+        not set.
+        """
+        if 'GITHUB_COMMIT_EMAILER_SEND_FROM_AUTHOR' in os.environ:
+            del os.environ['GITHUB_COMMIT_EMAILER_SEND_FROM_AUTHOR']
+        os.environ['GITHUB_COMMIT_EMAILER_SENDER'] = 'noreply-addr'
+        actual = emailer._get_sender('my-address')
+        self.assertEqual('noreply-addr', actual)
 
     def test_get_subject(self):
         """Verify get_subject returns first line of commit message and

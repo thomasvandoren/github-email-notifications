@@ -29,10 +29,16 @@ variables.
 ```bash
 heroku create [<app_name>]
 heroku addons:add papertrail
+heroku config:set GITHUB_COMMIT_EMAILER_SEND_FROM_AUTHOR=<true>
 heroku config:set GITHUB_COMMIT_EMAILER_SENDER=<sender_email>
 heroku config:set GITHUB_COMMIT_EMAILER_RECIPIENT=<recipient_email>
 heroku config:set GITHUB_COMMIT_EMAILER_SECRET=<the_secret>
 ```
+
+If `GITHUB_COMMIT_EMAILER_SEND_FROM_AUTHOR` is set (to any value), the pusher
+name and email combination will be used as the "From" address instead of the
+configured sender value. If a reply-to is configured, see below, that will be
+added regardless of this setting.
 
 Optionally, a reply-to address can be configured with the following config. If
 not set, no reply-to header is set so the sender address will be used as reply
@@ -108,7 +114,11 @@ SENDGRID_PASSWORD=<sendgrid_password>
 SENDGRID_USERNAME=<sendgrid_user>
 ```
 
-Use `heroku config` to get the sendgrid values.
+To use the same values configured in heroku:
+
+```bash
+heroku config --shell > .env
+```
 
 * Run the app, which opens at `http://localhost:5000`:
 
@@ -126,14 +136,16 @@ curl -vs -X POST \
   -d '{"deleted": false,
     "ref": "refs/heads/master",
     "compare": "http://compare.me",
-    "repository": {"full_name": "bite/me"},
+    "repository": {"full_name": "test/it"},
     "head_commit": {
       "id": "mysha1here",
       "message": "This is my message\nwith a break!",
       "added": ["index.html"],
       "removed": ["removed.it"],
       "modified": ["stuff", "was", "done"]},
-    "pusher": {"name": "thomasvandoren"}}'
+    "pusher": {
+      "name": "thomasvandoren",
+      "email": "testing@github-email-notification.info"}}'
 ```
 
 * Install test dependencies and run the unittests.
